@@ -1,0 +1,318 @@
+#:kivy 2.0
+#:import win kivy.core.window.Window
+#:import text_rule rules.text_rule
+
+<Menu>:
+    back_btn: back
+    Button:
+        id: back
+        size_hint: .1, .06
+        pos_hint: {"top": 0.12, "right": 0.95}
+        text: "Назад"
+
+
+<Headline@Label>:
+    font_size: "60dp"
+	size_hint: .3, .1
+	pos_hint: {"top": .9, "center_x": .5}
+
+
+<InputName>:
+    textinput: textinput
+	Label:
+		text: "Игра \"Шарики\""
+		font_size: "72dp"
+		size_hint: .3, .1
+		pos_hint: {"top": .9, "center_x": .5}
+		
+	TextInput:
+        id: textinput
+		multiline: False
+		text: "Введите имя..."
+		foreground_color: 181/255, 181/255, 181/255, 0.7
+		font_size: "50dp"
+		size_hint: .4, .1
+		pos_hint: {"center_x": 0.5, "center_y": 0.5}		
+		
+        on_focus: root.on_focus()
+        on_text_validate: root.text_validate(self.text)
+
+
+<MainMenu>:
+    Headline:
+        text: "Стреляй по шарам"
+
+    BoxLayout:
+        orientation: "vertical"
+        size_hint: 0.5, .4
+        spacing: "30dp"
+        padding: 10
+        pos_hint: {"center_x": .5, "center_y": .45}       
+
+        Button:
+            text: "Играть"
+            font_size: self.height * 0.5
+            on_release: root.start()
+
+        Button:
+            text: "Настройки"
+            font_size: self.height * 0.5
+            on_release: root.open_setting()
+
+        Button:
+            text: "Выход"
+            font_size: self.height * 0.5
+            on_release: win.close()
+
+
+<Settings>:
+	Headline: 
+		text: "Настройки"
+		
+	BoxLayout:
+		orientation: "vertical"
+		spacing: 20
+		size_hint: .6, .4
+		pos_hint: {"center_x": .5, "center_y": .5}
+		
+		BoxLayout:
+			size_hint_x: .5
+			pos_hint: {"center_x": .5}
+			
+			Label:
+				text: "Звук:"
+				font_size: "30dp"
+				
+			Label: 
+				text: str(int(slider.value))
+				font_size: "30dp"
+			
+		Slider:
+        	id: slider
+        	value: root.set_volume
+            value_track: True
+        	min: 0
+        	max: 100
+        	step: 1
+        	size_hint_x: .65
+			pos_hint: {"center_x": .5}
+        	orientation: 'horizontal'
+
+			on_value: root.on_volume(self.value)
+       	
+		Button:
+			text: "Правила игры"
+			font_size: "30dp"
+			size_hint_x:.7
+			pos_hint: {"center_x": .5}
+
+            on_release: root.rule()
+
+			
+		Button:
+			text: "Управление"
+			font_size: "30dp"
+			size_hint_x: .7
+			pos_hint: {"center_x": .5}
+
+            on_release: root.controlset()
+			     
+
+<Rules>:
+    Headline:
+        text: "Правила игры"
+
+    Label: 
+        text: text_rule
+        size_hint: .8, .7
+        pos_hint: {"center_x": .5, "top": .9}
+        halign: "center"
+
+
+<ControlSettings>:
+	shoot_key_btn: shoot_key_btn
+	ball_direction_list: ball_direction_list
+	change_color_list: change_color_list
+
+    Headline:
+        text: "Управление"
+
+	GridLayout:
+		cols: 2
+		size_hint: .5, .3
+		pos_hint: {"center_x": 0.5, "center_y": 0.5}
+		spacing: [0, 40]
+		
+		Label:
+			text: "Стрелять мячом:"
+            font_size: "20dp"
+			
+		Button:
+			id: shoot_key_btn
+			text: root.shoot_key[1].upper()
+            font_size: "20dp"
+			
+			on_release: root.change_shoot_key()
+		
+		Label: 
+			text: "Направление мяча:"
+            font_size: "20dp"
+			
+		Spinner:
+			id: ball_direction_list 
+			text: root.ball_direction
+            font_size: "20dp"
+			values: "Передвижение мышкой", "Стрелки на клавиатуре" 
+
+			on_text: root.ball_direction = self.text
+			
+		Label: 
+			text: "Менять цвет шаров:"
+            font_size: "20dp"
+		
+		Spinner:
+			id: change_color_list
+			text: root.change_color
+            font_size: "20dp"
+			values: "Автоматически", "Пробел"
+
+			on_text: root.change_color = self.text
+
+
+<PushBall>:
+	size_hint: None, None
+	size: 40, 40
+
+	canvas: 
+		Color:
+			rgb: self.color
+		Ellipse:
+			size: self.size
+			pos: self.pos
+
+<StaticBall>:
+	size_hint: None, None
+	size: 40, 40
+
+	canvas:
+		Color:
+			rgb: self.color
+		Ellipse: 
+			size: self.size
+			pos: self.pos
+
+<Aiming>:
+	size_hint: None, None
+	size: 80 *2, 80 *2
+	center: 500, 20
+
+	canvas:
+		Color:
+			rgba: self.mycolor
+			
+		Line:
+			points: 500, 20, self.end_coord[0], self.end_coord[1]
+			dash_offset: 5
+			dash_length: 2
+
+<BallsGame>:
+	switch_volume: switch_volume
+	play_field: play_field
+	GridLayout:
+		cols: 4
+		size_hint: 1, .05
+		pos_hint: {"top": .98}
+		spacing: 15
+	
+		Label:
+			text: str(root.score)
+			font_size: "35dp"
+			size_hint_x: None
+			width: root.size[1] / 1.15
+			
+		ToggleButton:
+			id: switch_volume 
+			size_hint_x: 0.3
+			on_state: root.change_state_sound(self.state)
+
+			Image:
+				id: img
+				source: "source/speaker_on.png"
+				center_x: self.parent.center_x - 23
+				center_y: self.parent.center_y + 25
+				size: self.parent.size[0] * 0.8, 0.8* self.parent.size[1]
+
+			
+		Button:
+			size_hint_x: 0.3
+
+			Image:
+				source: "source/restart.png"
+				center_x: self.parent.center_x - 23
+				center_y: self.parent.center_y + 25
+				size: self.parent.size[0] * 0.8, 0.8* self.parent.size[1]
+		
+		Button:
+			text: "Выход"
+
+			on_release: root.exit_game()
+			
+			
+	RelativeLayout:
+		id: play_field
+		size_hint_y: 0.92
+	
+		canvas:
+			Color:
+				rgb: 1,1,1
+			Line: 
+				points: 0, 100,1000, 100
+
+<DifficultySelection>:
+	Headline:
+        text: "Выбери уровень сложности"
+
+    BoxLayout:
+        orientation: "vertical"
+        size_hint: 0.5, .4
+        spacing: "30dp"
+        padding: 10
+        pos_hint: {"center_x": .5, "center_y": .45}       
+
+        Button:
+            text: "Лёгкий"
+            font_size: self.height * 0.5
+            on_release: root.difficulty = 'easy'
+
+        Button:
+            text: "Нормальный"
+            font_size: self.height * 0.5
+            on_release: root.difficulty = "normal"
+
+        Button:
+            text: "Сложный"
+            font_size: self.height * 0.5
+            on_release: root.difficulty = "hard"
+
+<YourScore>:
+	table: table
+	Headline:
+		text: "Таблица результатов"
+
+	BoxLayout:
+        orientation: "vertical"
+        size_hint: 0.55, .4
+        spacing: "30dp"
+        padding: 10
+        pos_hint: {"center_x": .5, "center_y": .45}
+
+		GridLayout:
+			id: table
+			cols: 2
+		
+		Label:
+			text: "Ваш счет: " + str(root.score)
+			font_size: "40dp"
+			size_hint: 0.55, 0.4
+			pos_hint: {"center_x": 0.5, "y": .15}
+
